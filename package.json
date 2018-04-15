@@ -1,0 +1,27 @@
+{
+    "name": "data-mock",
+    "version": "0.0.1",
+    "description": "数据模拟",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zhouzuchuan/data-mock.git"
+    },
+    "keywords": ["mock", "data"],
+    "author": "zhouzuchuan",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/zhouzuchuan/data-mock/issues"
+    },
+    "homepage": "https://github.com/zhouzuchuan/data-mock#readme",
+    "dependencies": {
+        "express": "^4.16.3",
+        "faker": "^4.1.0",
+        "mockjs": "^1.0.1-beta3",
+        "nodemon": "^1.17.3"
+    }
+}
