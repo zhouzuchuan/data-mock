@@ -1,0 +1,9 @@
+const program = require('commander');
+
+program
+  .usage('[options] appName')
+  .option('--path', 'Disable npm install after files created')
+  .option('--open', 'open browser')
+  .parse(process.argv);
+
+require('../server')(program);

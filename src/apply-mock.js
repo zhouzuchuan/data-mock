@@ -10,7 +10,10 @@ import createWatcher from './watcher';
 
 const debug = require('debug')('DM');
 
-export const realApplyMock = devServer => {
+const dmStart = (...arg) => arg[2]();
+const dmEnd = (...arg) => arg[2]();
+
+export const realApplyMock = app => {
     const db = store.path;
 
     // 清除缓存
@@ -21,10 +24,10 @@ export const realApplyMock = devServer => {
         }
     });
     const files = fs.readdirSync(db);
-    const { app } = devServer;
 
-    devServer.use(bodyParser.json({ limit: '5mb', strict: false }));
-    devServer.use(
+    app.use(dmStart);
+    app.use(bodyParser.json({ limit: '5mb', strict: false }));
+    app.use(
         bodyParser.urlencoded({
             extended: true,
             limit: '5mb'
@@ -55,28 +58,22 @@ export const realApplyMock = devServer => {
             app[method](path, createMockHandler(method, path, config[key]));
         }
     });
+    app.use(dmEnd);
 
-    // 调整 stack，把 historyApiFallback 放到最后
-    let lastIndex = null;
-    app._router.stack.forEach((item, index) => {
-        if (item.name === 'webpackDevMiddleware') {
-            lastIndex = index;
-        }
-    });
-    const mockAPILength = app._router.stack.length - 1 - lastIndex;
-    if (lastIndex && lastIndex > 0) {
-        const newStack = app._router.stack;
-        newStack.push(newStack[lastIndex - 1]);
-        newStack.push(newStack[lastIndex]);
-        newStack.splice(lastIndex - 1, 2);
-        app._router.stack = newStack;
-    }
+    const indexArr = app._router.stack.reduce(
+        (r, { name }, index) => (['dmStart', 'dmEnd'].includes(name) ? [...r, index] : r),
+        []
+    );
 
     createWatcher({
-        server: devServer,
+        server: app,
         applyBefore: () => {
-            // 删除旧的 mock api
-            app._router.stack.splice(lastIndex - 1, mockAPILength);
+            // 删除旧的mock
+            if (indexArr.length) {
+                const min = Math.min(...indexArr);
+                const max = Math.max(...indexArr);
+                app._router.stack.splice(min, max - min + 1);
+            }
         }
     });
 };

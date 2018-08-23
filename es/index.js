@@ -93,7 +93,7 @@ var createWatcher = function createWatcher(_ref) {
         depth: 99 //到位了....
     });
     watcher.on('change', function (path$$1) {
-        console.log(chalk$1.cyan('[DM]'), chalk$1.green('CHANGED'), store.path);
+        console.log(chalk$1.bgCyan('[DM]'), chalk$1.red('CHANGED'), store.path);
         watcher.close();
         applyBefore();
         applyMock({ server: server });
@@ -158,11 +158,36 @@ var slicedToArray = function () {
   };
 }();
 
+var toConsumableArray = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
+};
+
 var bodyParser = require('body-parser');
 
 var debug = require('debug')('DM');
 
-var realApplyMock = function realApplyMock(devServer) {
+var dmStart = function dmStart() {
+    for (var _len = arguments.length, arg = Array(_len), _key = 0; _key < _len; _key++) {
+        arg[_key] = arguments[_key];
+    }
+
+    return arg[2]();
+};
+var dmEnd = function dmEnd() {
+    for (var _len2 = arguments.length, arg = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        arg[_key2] = arguments[_key2];
+    }
+
+    return arg[2]();
+};
+
+var realApplyMock = function realApplyMock(app) {
     var db = store.path;
 
     // 清除缓存
@@ -173,11 +198,10 @@ var realApplyMock = function realApplyMock(devServer) {
         }
     });
     var files = fs.readdirSync(db);
-    var app = devServer.app;
 
-
-    devServer.use(bodyParser.json({ limit: '5mb', strict: false }));
-    devServer.use(bodyParser.urlencoded({
+    app.use(dmStart);
+    app.use(bodyParser.json({ limit: '5mb', strict: false }));
+    app.use(bodyParser.urlencoded({
         extended: true,
         limit: '5mb'
     }));
@@ -203,36 +227,30 @@ var realApplyMock = function realApplyMock(devServer) {
             app[method](path$$1, createMockHandler(method, path$$1, config[key]));
         }
     });
+    app.use(dmEnd);
 
-    // 调整 stack，把 historyApiFallback 放到最后
-    var lastIndex = null;
-    app._router.stack.forEach(function (item, index) {
-        if (item.name === 'webpackDevMiddleware') {
-            lastIndex = index;
-        }
-    });
-    var mockAPILength = app._router.stack.length - 1 - lastIndex;
-    if (lastIndex && lastIndex > 0) {
-        var newStack = app._router.stack;
-        newStack.push(newStack[lastIndex - 1]);
-        newStack.push(newStack[lastIndex]);
-        newStack.splice(lastIndex - 1, 2);
-        app._router.stack = newStack;
-    }
+    var indexArr = app._router.stack.reduce(function (r, _ref, index) {
+        var name = _ref.name;
+        return ['dmStart', 'dmEnd'].includes(name) ? [].concat(toConsumableArray(r), [index]) : r;
+    }, []);
 
     createWatcher({
-        server: devServer,
+        server: app,
         applyBefore: function applyBefore() {
-            // 删除旧的 mock api
-            app._router.stack.splice(lastIndex - 1, mockAPILength);
+            // 删除旧的mock
+            if (indexArr.length) {
+                var min = Math.min.apply(Math, toConsumableArray(indexArr));
+                var max = Math.max.apply(Math, toConsumableArray(indexArr));
+                app._router.stack.splice(min, max - min + 1);
+            }
         }
     });
 };
 
-var applyMock = function applyMock(_ref) {
-    var server = _ref.server,
-        _ref$path = _ref.path,
-        cpath = _ref$path === undefined ? store.path : _ref$path;
+var applyMock = function applyMock(_ref2) {
+    var server = _ref2.server,
+        _ref2$path = _ref2.path,
+        cpath = _ref2$path === undefined ? store.path : _ref2$path;
 
     store.path = cpath;
     try {
@@ -245,7 +263,7 @@ var applyMock = function applyMock(_ref) {
     }
 };
 
-var index = {};
+var server = require('../server');
 
-export default index;
+export default server;
 export { applyMock };
