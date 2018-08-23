@@ -1,9 +1,12 @@
+#!/usr/bin/env node
+
 const program = require('commander');
 
 program
   .usage('[options] appName')
-  .option('--path', 'Disable npm install after files created')
-  .option('--open', 'open browser')
+  .option('-p, --path <path>', 'Disable npm install after files created')
+  .option('-o, --open', 'open browser')
   .parse(process.argv);
+
 
 require('../server')(program);

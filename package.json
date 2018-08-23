@@ -1,14 +1,14 @@
 {
     "name": "data-mock",
-    "version": "0.0.2-alpha.1",
+    "version": "0.1.0",
     "description": "数据模拟",
-    "main": "cjs",
+    "main": "lib",
     "bin": {
         "rec": "bin/dm"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "nodemon server.js",
+        "start": "bin/dm server -p ./example/",
         "build": "rollup -c"
     },
     "repository": {
@@ -17,9 +17,10 @@
     },
     "keywords": [
         "mock",
-        "data"
+        "data",
+        "dm"
     ],
-    "author": "zhouzuchuan",
+    "author": "fezzc",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/zhouzuchuan/data-mock/issues"

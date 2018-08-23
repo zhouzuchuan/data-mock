@@ -5,8 +5,7 @@ module.exports = {
         return res.json({
             name: Random.cname(),
             time: Random.date(),
-            chuan: 'dddddddd'
+            chuan: '2222'
         });
-    },
-    ['get /chuan2']: '33'
+    }
 };

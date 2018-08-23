@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 'use strict';
 
-
-
 const chalk = require('chalk');
 const program = require('commander');
 const spawn = require('win-spawn');
@@ -19,7 +17,7 @@ updater({ pkg: pkg }).notify({ defer: true });
 if (process.argv.slice(2).join('') === '-v') {
   const pkg = require('../package');
 
-  console.log('react-enhanced-cli version ' + pkg.version);
+  console.log('data-mock version ' + pkg.version);
 
   if (!(pkg._from && pkg._resolved)) {
     console.log(chalk.cyan('@local'));
@@ -44,7 +42,6 @@ if (!subcmd) {
 } else {
   const bin = executable(subcmd);
   if (bin) {
-    console.log(bin);
     wrap(spawn(bin, args, {stdio: 'inherit', customFds: [0, 1, 2]}));
   } else {
     program.help();
@@ -64,7 +61,6 @@ function printHelp() {
   console.log();
   console.log('  All commands can be run with -h (or --help) for more information.')
 }
-
 
 function executable(subcmd) {
   var file = join(__dirname, 'dm-' + subcmd);

@@ -1,7 +1,5 @@
-import fs from 'fs';
 import assert from 'assert';
-import path from 'path';
-
+const glob = require('glob');
 const bodyParser = require('body-parser');
 
 import store from './store';
@@ -13,6 +11,15 @@ const debug = require('debug')('DM');
 const dmStart = (...arg) => arg[2]();
 const dmEnd = (...arg) => arg[2]();
 
+const requireFile = files =>
+    files.reduce(
+        (r, v) => ({
+            ...r,
+            ...require(v)
+        }),
+        {}
+    );
+
 export const realApplyMock = app => {
     const db = store.path;
 
@@ -23,9 +30,10 @@ export const realApplyMock = app => {
             delete require.cache[file];
         }
     });
-    const files = fs.readdirSync(db);
 
-    app.use(dmStart);
+    // 注入store
+    global.DM = requireFile(glob.sync(db + '/.*.js'));
+
     app.use(bodyParser.json({ limit: '5mb', strict: false }));
     app.use(
         bodyParser.urlencoded({
@@ -33,15 +41,9 @@ export const realApplyMock = app => {
             limit: '5mb'
         })
     );
-
-    const config = files.reduce(
-        (r, v) => ({
-            ...r,
-            ...require(path.resolve(db, v))
-        }),
-        {}
-    );
-
+    app.use(dmStart);
+    // 添加路由
+    const config = requireFile(glob.sync(db + '/!(.)*.js'));
     Object.keys(config).forEach(key => {
         let [path, method] = dealPath(key);
         assert(!!app[method], `method of ${key} is not valid`);

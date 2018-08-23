@@ -1,7 +1,5 @@
 import url from 'url';
-import fs from 'fs';
 import assert from 'assert';
-import path from 'path';
 
 var store = {
     path: ''
@@ -16,11 +14,11 @@ var chalk = require('chalk');
  *
  * @param {*} path
  */
-var winPath = function winPath(path$$1) {
-    return path$$1.replace(/\\/g, '/');
+var winPath = function winPath(path) {
+    return path.replace(/\\/g, '/');
 };
 
-var createMockHandler = function createMockHandler(method, path$$1, value) {
+var createMockHandler = function createMockHandler(method, path, value) {
     return function () {
         var res = arguments.length <= 1 ? undefined : arguments[1];
         if (typeof value === 'function') {
@@ -31,18 +29,18 @@ var createMockHandler = function createMockHandler(method, path$$1, value) {
     };
 };
 
-var createProxy = function createProxy(method, path$$1, target) {
+var createProxy = function createProxy(method, path, target) {
     return proxy(target, {
         filter: function filter(req) {
             return method ? req.method.toLowerCase() === method.toLowerCase() : true;
         },
         forwardPath: function forwardPath(req) {
             var matchPath = req.originalUrl;
-            var matches = matchPath.match(path$$1);
+            var matches = matchPath.match(path);
             if (matches.length > 1) {
                 matchPath = matches[1];
             }
-            return winPath(path$$1.join(url.parse(target).path, matchPath));
+            return winPath(path.join(url.parse(target).path, matchPath));
         }
     });
 };
@@ -92,8 +90,8 @@ var createWatcher = function createWatcher(_ref) {
         cwd: '.', //表示当前目录
         depth: 99 //到位了....
     });
-    watcher.on('change', function (path$$1) {
-        console.log(chalk$1.bgCyan('[DM]'), chalk$1.red('CHANGED'), store.path);
+    watcher.on('change', function (path) {
+        console.log(chalk$1.bgCyan(chalk$1.white(' DM ')), chalk$1.cyan('CHANGED'), store.path);
         watcher.close();
         applyBefore();
         applyMock({ server: server });
@@ -168,6 +166,7 @@ var toConsumableArray = function (arr) {
   }
 };
 
+var glob = require('glob');
 var bodyParser = require('body-parser');
 
 var debug = require('debug')('DM');
@@ -187,6 +186,12 @@ var dmEnd = function dmEnd() {
     return arg[2]();
 };
 
+var requireFile = function requireFile(files) {
+    return files.reduce(function (r, v) {
+        return _extends({}, r, require(v));
+    }, {});
+};
+
 var realApplyMock = function realApplyMock(app) {
     var db = store.path;
 
@@ -197,34 +202,33 @@ var realApplyMock = function realApplyMock(app) {
             delete require.cache[file];
         }
     });
-    var files = fs.readdirSync(db);
 
-    app.use(dmStart);
+    // 注入store
+    global.DM = requireFile(glob.sync(db + '/.*.js'));
+
     app.use(bodyParser.json({ limit: '5mb', strict: false }));
     app.use(bodyParser.urlencoded({
         extended: true,
         limit: '5mb'
     }));
-
-    var config = files.reduce(function (r, v) {
-        return _extends({}, r, require(path.resolve(db, v)));
-    }, {});
-
+    app.use(dmStart);
+    // 添加路由
+    var config = requireFile(glob.sync(db + '/!(.)*.js'));
     Object.keys(config).forEach(function (key) {
         var _dealPath = dealPath(key),
             _dealPath2 = slicedToArray(_dealPath, 2),
-            path$$1 = _dealPath2[0],
+            path = _dealPath2[0],
             method = _dealPath2[1];
 
         assert(!!app[method], 'method of ' + key + ' is not valid');
         assert(typeof config[key] === 'function' || _typeof(config[key]) === 'object' || typeof config[key] === 'string', 'mock value of ' + key + ' should be function or object or string, but got ' + _typeof(config[key]));
         if (typeof config[key] === 'string') {
-            if (/\(.+\)/.test(path$$1)) {
-                path$$1 = new RegExp('^' + path$$1 + '$');
+            if (/\(.+\)/.test(path)) {
+                path = new RegExp('^' + path + '$');
             }
-            app.use(path$$1, createProxy(method, path$$1, config[key]));
+            app.use(path, createProxy(method, path, config[key]));
         } else {
-            app[method](path$$1, createMockHandler(method, path$$1, config[key]));
+            app[method](path, createMockHandler(method, path, config[key]));
         }
     });
     app.use(dmEnd);

@@ -14,7 +14,7 @@ const createWatcher = ({ server, applyBefore = () => {} }) => {
         depth: 99 //到位了....
     });
     watcher.on('change', path => {
-        console.log(chalk.bgCyan('[DM]'), chalk.red('CHANGED'), store.path);
+        console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.cyan('CHANGED'), store.path);
         watcher.close();
         applyBefore();
         applyMock({ server });
