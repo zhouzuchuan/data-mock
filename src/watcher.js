@@ -3,7 +3,7 @@
 const chokidar = require('chokidar');
 const chalk = require('chalk');
 
-import { applyMock } from './apply-mock';
+import { bindServer } from './apply-mock';
 // import store from './store';
 
 const createWatcher = ({ server, applyBefore = () => {} }) => {
@@ -17,7 +17,7 @@ const createWatcher = ({ server, applyBefore = () => {} }) => {
         console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.cyan('CHANGED'), path);
         watcher.close();
         applyBefore();
-        applyMock({ server });
+        bindServer({ server });
     });
 };
 
