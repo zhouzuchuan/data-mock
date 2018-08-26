@@ -86,7 +86,7 @@ yarn add global data-mock
 `data-mock` 暴露一个方法 `applyMock`，用来绑定 [webpack-dev-server](https://github.com/webpack/webpack-dev-server) 暴露的 express 对象
 
 ```js
-    const {applyMock} = require('data-mock')
+    const { bindServer } = require('data-mock')
 
     // ...
 
@@ -95,7 +95,7 @@ yarn add global data-mock
         //  绑定mock server
         after: server => {
 
-            applyMock({
+            bindServer({
                 server,
                 target: path.resolve(__dirname, "./src/mocks/")
             });
