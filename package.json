@@ -1,14 +1,14 @@
 {
     "name": "data-mock",
-    "version": "0.1.0",
-    "description": "数据模拟",
+    "version": "0.1.2",
+    "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
         "dm": "bin/dm"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "bin/dm server -p ./example/",
+        "start": "bin/dm server -t ./example/",
         "build": "rollup -c"
     },
     "repository": {
@@ -30,10 +30,12 @@
         "body-parser": "^1.18.3",
         "chalk": "^2.4.1",
         "chokidar": "^2.0.4",
+        "commander": "^2.17.1",
         "detect-port-alt": "^1.1.6",
         "express": "^4.16.3",
         "express-http-proxy": "^1.2.0",
         "fs-extra": "^7.0.0",
+        "glob": "^7.1.2",
         "inquirer": "^6.1.0",
         "opn": "^5.3.0",
         "update-notifier": "^2.5.0",

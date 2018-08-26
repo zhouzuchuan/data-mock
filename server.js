@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
 const url = require('url');
+const printLogo = require('./print-logo');
 const { applyMock } = require('./lib');
 const { choosePort, openBrowser } = require('./server-util');
 
@@ -21,31 +22,19 @@ const server = program => {
             const server = express();
             applyMock({
                 server,
-                path: path.resolve(__dirname, program.path || './')
+                path: path.resolve(__dirname, program.target || process.cwd())
             });
             server.listen(port, HOST, err => {
                 if (err) {
                     return console.log(err);
                 }
 
-                console.log('');
-                console.log('');
-                console.log(
-                    chalk.green(`
-                ██████╗ ███╗   ███╗
-                ██╔══██╗████╗ ████║
-                ██║  ██║██╔████╔██║
-                ██║  ██║██║╚██╔╝██║
-                ██████╔╝██║ ╚═╝ ██║
-                ╚═════╝ ╚═╝     ╚═╝
-                `)
-                );
+                printLogo();
 
-                console.log('');
                 console.log('Listen to: ');
                 console.log('');
-                console.log(chalk.cyan(`    http://localhost:${port}`));
-                console.log(chalk.cyan(`    http://${address.ip()}:${port}`));
+                console.log(chalk.cyan(`Local:            http://localhost:${port}`));
+                console.log(chalk.cyan(`On Your Network:  http://${address.ip()}:${port}`));
                 console.log('');
                 console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
                 console.log('');

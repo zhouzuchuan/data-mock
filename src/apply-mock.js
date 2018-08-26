@@ -20,8 +20,8 @@ const requireFile = files =>
         {}
     );
 
-export const realApplyMock = app => {
-    const db = store.path;
+export const bindMockServer = app => {
+    const db = store.target;
 
     // 清除缓存
     Object.keys(require.cache).forEach(file => {
@@ -80,10 +80,10 @@ export const realApplyMock = app => {
     });
 };
 
-export const applyMock = ({ server, path: cpath = store.path }) => {
-    store.path = cpath;
+export const bindServer = ({ server, target = store.target }) => {
+    store.target = target;
     try {
-        realApplyMock(server);
+        bindMockServer(server);
     } catch (e) {
         console.log(e);
         console.log();

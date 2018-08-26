@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+
+rollup.config.js
+.npmignore
+src/*
+example/*

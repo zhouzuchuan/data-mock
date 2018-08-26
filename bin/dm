@@ -8,6 +8,7 @@ const join = require('path').join;
 const resolve = require('path').resolve;
 const exists = require('fs').existsSync;
 const readFileSync = require('fs').readFileSync;
+const printLogo = require('../print-logo')
 
 // Notify update when process exits
 const updater = require('update-notifier');
@@ -15,13 +16,7 @@ const pkg = require('../package.json');
 updater({ pkg: pkg }).notify({ defer: true });
 
 if (process.argv.slice(2).join('') === '-v') {
-  const pkg = require('../package');
-
-  console.log('data-mock version ' + pkg.version);
-
-  if (!(pkg._from && pkg._resolved)) {
-    console.log(chalk.cyan('@local'));
-  }
+  printLogo()
   return;
 }
 
@@ -57,9 +52,13 @@ function wrap(sp) {
 function printHelp() {
   console.log('  Commands:');
   console.log();
-  console.log('    server         Start mock server');
+  console.log('    server                  Start mock server');
+  console.log('       --target, -t         Specify server directory');
   console.log();
   console.log('  All commands can be run with -h (or --help) for more information.')
+
+
+  printLogo()
 }
 
 function executable(subcmd) {

@@ -7,10 +7,6 @@ export default {
         {
             file: 'lib/index.js',
             format: 'cjs'
-        },
-        {
-            file: 'es/index.js',
-            format: 'es'
         }
     ],
     external: ['fs', 'path', 'assert', 'url'],
