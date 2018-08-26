@@ -74,10 +74,10 @@ yarn add global data-mock
 ### 全局使用
 
 ```bash
-    # 当前目录为目标服务目录 并启动服务
+    # 当前目录为目标服务目录 并启动服务
     dm server
 
-    # 指定mocks文件夹为目标服务目录 并启动服务
+    # 指定mocks文件夹为目标服务目录 并启动服务
     dm server -t ./mocks/
 ```
 
