@@ -44,7 +44,8 @@ export const dealPath = key =>
     key
         .split(' ')
         .slice(0, 2)
-        .reverse();
+        .reverse()
+        .map(v => v.toLowerCase());
 
 export const outputError = error => {
     if (!error) return;
