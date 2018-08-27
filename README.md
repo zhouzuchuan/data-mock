@@ -57,7 +57,7 @@ yarn add global data-mock
 
 目标服务目录的 js 格式，建议采用 es6 的（在问为什么要用 es6 之前，先问下自己为啥不用）
 
-    请提前检测下自己电脑安装的 node 支持何种程度的 es6，可以使用这个工具来检测 [es-checker ](https://github.com/ruanyf/es-checker)
+请提前检测下自己电脑安装的 node 支持何种程度的 es6，可以使用这个工具来检测 [es-checker](https://github.com/ruanyf/es-checker)
 
 数据格式：`[请求方式 请求接口]: 响应函数`
 
@@ -83,24 +83,23 @@ yarn add global data-mock
 
 ### 现代前端框架 [webpack](https://github.com/webpack/webpack) 中使用
 
-`data-mock` 暴露一个方法 `applyMock`，用来绑定 [webpack-dev-server](https://github.com/webpack/webpack-dev-server) 暴露的 express 对象
+`data-mock` 暴露一个方法 `bindServer`，用来绑定 [webpack-dev-server](https://github.com/webpack/webpack-dev-server) 暴露的 express 对象
 
 ```js
-    const { bindServer } = require('data-mock')
+const { bindServer } = require('data-mock');
 
-    // ...
+// ...
 
-    // webpack 中webpack-dev-server 配置
-    devServer: {
-        //  绑定mock server
-        after: server => {
-
-            bindServer({
-                server,
-                target: path.resolve(__dirname, "./src/mocks/")
-            });
-        }
-    }
+// webpack 中webpack-dev-server 配置
+devServer: {
+    //  绑定mock server
+    after: server => {
+        bindServer({
+            server,
+            target: path.resolve(__dirname, './src/mocks/')
+        });
+    };
+}
 ```
 
 ## License

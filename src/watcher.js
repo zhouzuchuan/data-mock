@@ -4,7 +4,7 @@ const chokidar = require('chokidar');
 const chalk = require('chalk');
 
 import { bindServer } from './apply-mock';
-// import store from './store';
+import store from './store';
 
 const createWatcher = ({ server, applyBefore = () => {} }) => {
     const watcher = chokidar.watch(store.target, {

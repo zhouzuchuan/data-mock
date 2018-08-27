@@ -1,0 +1,3 @@
+.babelrc
+*.md
+node_modules/

@@ -3,7 +3,7 @@ const path = require('path');
 const chalk = require('chalk');
 const url = require('url');
 const printLogo = require('./print-logo');
-const { applyMock } = require('./lib');
+const { bindServer } = require('./lib');
 const { choosePort, openBrowser } = require('./server-util');
 
 const address = require('address');
@@ -20,9 +20,9 @@ const server = program => {
             }
 
             const server = express();
-            applyMock({
+            bindServer({
                 server,
-                path: path.resolve(__dirname, program.target || process.cwd())
+                target: path.resolve(__dirname, program.target || process.cwd())
             });
             server.listen(port, HOST, err => {
                 if (err) {
