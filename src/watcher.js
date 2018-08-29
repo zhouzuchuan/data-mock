@@ -9,7 +9,7 @@ import store from './store';
 const createWatcher = ({ server, applyBefore = () => {} }) => {
     const watcher = chokidar.watch(store.target, {
         persistent: true,
-        ignored: /(^|[\/\\])\../, //忽略点文件
+        ignored: /(^|[\/\\])\..*(?<!\.js)$/, //忽略点文件
         cwd: '.', //表示当前目录
         depth: 99 //到位了....
     });

@@ -7,7 +7,7 @@ module.exports = {
         return res.json({
             creator: Random.cname(),
             lastTime: Random.date(),
-            value: '可以修改我来测试接口是否是实时监听-1000',
+            value: '可以修改我来测试接口是否是实时监听-100',
             ...DM
         });
     }
