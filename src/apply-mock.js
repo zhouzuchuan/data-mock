@@ -43,23 +43,26 @@ export const bindMockServer = app => {
     );
     app.use(dmStart);
     // 添加路由
-    const config = requireFile(glob.sync(db + '/!(.)*.js'));
-    Object.keys(config).forEach(key => {
+    Object.entries(requireFile(glob.sync(db + '/!(.)*.js'))).forEach(([key, fn]) => {
         let [path, method] = dealPath(key);
+
+        if (!path || !method || !/^\//.test(path)) return;
+
         assert(!!app[method], `method of ${key} is not valid`);
         assert(
-            typeof config[key] === 'function' || typeof config[key] === 'object' || typeof config[key] === 'string',
-            `mock value of ${key} should be function or object or string, but got ${typeof config[key]}`
+            typeof fn === 'function' || typeof fn === 'object' || typeof fn === 'string',
+            `mock value of ${key} should be function or object or string, but got ${typeof fn}`
         );
-        if (typeof config[key] === 'string') {
+        if (typeof fn === 'string') {
             if (/\(.+\)/.test(path)) {
                 path = new RegExp(`^${path}$`);
             }
-            app.use(path, createProxy(method, path, config[key]));
+            app.use(path, createProxy(method, path, fn));
         } else {
-            app[method](path, createMockHandler(method, path, config[key]));
+            app[method](path, createMockHandler(method, path, fn));
         }
     });
+
     app.use(dmEnd);
 
     const indexArr = app._router.stack.reduce(
