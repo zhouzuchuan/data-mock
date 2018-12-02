@@ -1,6 +1,7 @@
-import assert from 'assert';
+const assert = require('assert');
 const glob = require('glob');
 const bodyParser = require('body-parser');
+const chalk = require('chalk');
 
 import store from './store';
 import { dealPath, createMockHandler, createProxy, outputError } from './utils';
@@ -11,14 +12,46 @@ const debug = require('debug')('DM');
 const dmStart = (...arg) => arg[2]();
 const dmEnd = (...arg) => arg[2]();
 
-const requireFile = files =>
-    files.reduce(
-        (r, v) => ({
-            ...r,
-            ...require(v)
-        }),
-        {}
-    );
+const requireFile = files => {
+    let count = {};
+    const result = files.reduce((r, v) => {
+        const result = require(v);
+
+        if (typeof result === 'object') {
+            Object.entries(result).forEach(([key, fn]) => {
+                count[key] = [...(count[key] || []), v];
+            });
+
+            return {
+                ...r,
+                ...(typeof result === 'object' && result)
+            };
+        } else {
+            console.log(`${chalk.bgRed(chalk.white(` ${v} `))} 文件格式不符合要求，已过滤！`);
+
+            return r;
+        }
+    }, {});
+
+    Object.entries(count)
+        .filter(([k, v]) => v.length > 1)
+        .forEach(([k, v]) => {
+            let [path, method] = dealPath(k);
+            console.log('');
+            console.log(
+                chalk.bgYellow(chalk.white(`${method}`)),
+                chalk.yellow(path),
+                '出现次数：',
+                chalk.bgRed(chalk.white(chalk.bold(` ${v.length} `)))
+            );
+            v.forEach(o => {
+                console.log(`  ${chalk.bgCyan(chalk.white(` ${o} `))}`);
+            });
+            console.log('');
+        });
+
+    return result;
+};
 
 export const bindMockServer = app => {
     const db = store.target;
@@ -46,20 +79,21 @@ export const bindMockServer = app => {
     Object.entries(requireFile(glob.sync(db + '/!(.)*.js'))).forEach(([key, fn]) => {
         let [path, method] = dealPath(key);
 
-        if (!path || !method || !/^\//.test(path)) return;
-
-        assert(!!app[method], `method of ${key} is not valid`);
-        assert(
-            typeof fn === 'function' || typeof fn === 'object' || typeof fn === 'string',
-            `mock value of ${key} should be function or object or string, but got ${typeof fn}`
-        );
-        if (typeof fn === 'string') {
-            if (/\(.+\)/.test(path)) {
-                path = new RegExp(`^${path}$`);
+        // 非本地路径过滤
+        if (path && method && /^\//.test(path)) {
+            assert(!!app[method], `method of ${key} is not valid`);
+            assert(
+                typeof fn === 'function' || typeof fn === 'object' || typeof fn === 'string',
+                `mock value of ${key} should be function or object or string, but got ${typeof fn}`
+            );
+            if (typeof fn === 'string') {
+                if (/\(.+\)/.test(path)) {
+                    path = new RegExp(`^${path}$`);
+                }
+                app.use(path, createProxy(method, path, fn));
+            } else {
+                app[method](path, createMockHandler(method, path, fn));
             }
-            app.use(path, createProxy(method, path, fn));
-        } else {
-            app[method](path, createMockHandler(method, path, fn));
         }
     });
 
