@@ -6,8 +6,8 @@ const chalk = require('chalk');
 import { bindServer } from './apply-mock';
 import store from './store';
 
-const createWatcher = ({ server, applyBefore = () => {} }) => {
-    const watcher = chokidar.watch(store.target, {
+const createWatcher = ({ server, applyBefore = f => f }) => {
+    const watcher = chokidar.watch([store.target, ...store.watchTarget], {
         persistent: true,
         ignored: /(^|[\/\\])\..*(?<!\.js)$/, //忽略点文件
         cwd: '.', //表示当前目录

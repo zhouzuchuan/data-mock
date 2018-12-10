@@ -58,7 +58,7 @@ export const bindMockServer = app => {
 
     // 清除缓存
     Object.keys(require.cache).forEach(file => {
-        if (file.includes(db)) {
+        if ([...store.watchTarget, db].some(v => file.includes(v))) {
             debug(`delete cache ${file}`);
             delete require.cache[file];
         }
@@ -117,8 +117,9 @@ export const bindMockServer = app => {
     });
 };
 
-export const bindServer = ({ server, target = store.target }) => {
+export const bindServer = ({ server, target = store.target, watchTarget = store.watchTarget }) => {
     store.target = target;
+    store.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
     try {
         bindMockServer(server);
     } catch (e) {

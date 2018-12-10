@@ -3,10 +3,10 @@
 const program = require('commander');
 
 program
-  .usage('[options] appName')
-  .option('-t, --target <target>', 'Disable npm install after files created')
-  .option('-o, --open', 'open browser')
-  .parse(process.argv);
-
+    .usage('[options] data-mock|Lightweight mock data service')
+    .option('-t, --target <target>', 'Specify service directory')
+    .option('--wt, --watchTarget <target>', 'Specify another monitoring directory')
+    .option('-o, --open', 'Service starts, open the default browser')
+    .parse(process.argv);
 
 require('../server')(program);

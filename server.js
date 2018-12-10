@@ -22,7 +22,8 @@ const server = program => {
             const server = express();
             bindServer({
                 server,
-                target: path.resolve(__dirname, program.target || process.cwd())
+                target: path.resolve(__dirname, program.target || process.cwd()),
+                ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {})
             });
             server.listen(port, HOST, err => {
                 if (err) {

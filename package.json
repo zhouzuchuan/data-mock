@@ -1,6 +1,6 @@
 {
     "name": "data-mock",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
@@ -8,7 +8,7 @@
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "bin/dm server -t ./example/",
+        "start": "bin/dm server -t ./example/db  --wt ./example/api",
         "build": "rollup -c"
     },
     "repository": {
