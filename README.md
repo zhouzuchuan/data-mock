@@ -108,9 +108,7 @@ devServer: {
 }
 ```
 
-```
-PS：watchTarget 搭配 [api-manage](https://github.com/zhouzuchuan/api-manage) 使用效果更佳
-```
+`watchTarget` 搭配 [api-manage](https://github.com/zhouzuchuan/api-manage) 使用效果更佳
 
 ## License
 
