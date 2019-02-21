@@ -1,6 +1,6 @@
 {
     "name": "data-mock",
-    "version": "0.3.0",
+    "version": "1.0.0",
     "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
@@ -9,7 +9,9 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "bin/dm server -t ./example/db  --wt ./example/api",
-        "build": "rollup -c"
+        "build": "rollup -c",
+        "build2": "apidoc -i example/db -o public/apidoc/",
+        "prestart": "npm run build"
     },
     "repository": {
         "type": "git",
@@ -27,6 +29,7 @@
     },
     "homepage": "https://github.com/zhouzuchuan/data-mock#readme",
     "dependencies": {
+        "apidoc": "^0.17.7",
         "body-parser": "^1.18.3",
         "chalk": "^2.4.1",
         "chokidar": "^2.0.4",
@@ -37,6 +40,7 @@
         "fs-extra": "^7.0.0",
         "glob": "^7.1.2",
         "inquirer": "^6.1.0",
+        "jsdoc": "^3.5.5",
         "opn": "^5.3.0",
         "update-notifier": "^2.5.0",
         "win-spawn": "^2.0.0"

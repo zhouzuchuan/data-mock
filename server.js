@@ -2,11 +2,75 @@ const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
 const url = require('url');
+const which = require('which');
 const printLogo = require('./print-logo');
 const { bindServer } = require('./lib');
 const { choosePort, openBrowser } = require('./server-util');
 
 const address = require('address');
+
+// var swaggerUi = require('swagger-ui-express');
+// var swaggerJSDoc = require('swagger-jsdoc');
+
+// var swaggerDefinition = {
+//     info: {
+//         title: 'Swagger API',
+//         version: '1.0.0',
+//         description: 'Swagger 接口文档',
+//     },
+//     // host: 'localhost:3000',
+//     basePath: '/',
+// };
+
+// // options for the swagger docs
+// var options = {
+//     // import swaggerDefinitions
+//     swaggerDefinition: swaggerDefinition,
+//     // path to the API docs
+//     apis: [path.resolve(__dirname, program.target || process.cwd()) + '/*.js'],
+// };
+
+// // initialize swagger-jsdoc
+// var swaggerSpec = swaggerJSDoc(options);
+
+// // serve swagger
+// server.get('/swagger.json', function(req, res) {
+//     res.setHeader('Content-Type', 'application/json');
+//     res.send(swaggerSpec);
+// });
+
+// server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+/**
+ * 启动命令
+ */
+function runCmd(cmd, args, fn) {
+    args = args || [];
+    let runner = require('child_process').spawn(cmd, args, {
+        // keep color
+        stdio: 'inherit',
+    });
+    runner.on('close', function(code) {
+        if (fn) {
+            fn(code);
+        }
+    });
+}
+
+/**
+ * 是否安装git
+ * */
+
+const findApidoc = () => {
+    let apidoc = `apidoc${process.platform === 'win32' ? '.cmd' : ''}`;
+    try {
+        which.sync(apidoc);
+        return apidoc;
+    } catch (e) {
+        log(e);
+    }
+    throw new Error('please install apidoc');
+};
 
 const server = program => {
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
@@ -20,11 +84,13 @@ const server = program => {
             }
 
             const server = express();
+
             bindServer({
                 server,
                 target: path.resolve(__dirname, program.target || process.cwd()),
-                ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {})
+                ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {}),
             });
+
             server.listen(port, HOST, err => {
                 if (err) {
                     return console.log(err);
@@ -46,8 +112,8 @@ const server = program => {
                             protocol,
                             // hostname: HOST,
                             port,
-                            pathname: '/'
-                        })
+                            pathname: '/',
+                        }),
                     );
             });
         })

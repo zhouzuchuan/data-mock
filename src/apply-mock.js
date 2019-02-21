@@ -1,6 +1,9 @@
 const assert = require('assert');
 const glob = require('glob');
+const path = require('path');
 const bodyParser = require('body-parser');
+const which = require('which');
+const express = require('express');
 const chalk = require('chalk');
 
 import store from './store';
@@ -8,6 +11,37 @@ import { dealPath, createMockHandler, createProxy, outputError } from './utils';
 import createWatcher from './watcher';
 
 const debug = require('debug')('DM');
+
+/**
+ * 启动命令
+ */
+function runCmd(cmd, args, fn) {
+    args = args || [];
+    let runner = require('child_process').spawn(cmd, args, {
+        // keep color
+        stdio: 'inherit',
+    });
+    runner.on('close', function(code) {
+        if (fn) {
+            fn(code);
+        }
+    });
+}
+
+/**
+ * 是否安装git
+ * */
+
+const findApidoc = () => {
+    let apidoc = `apidoc${process.platform === 'win32' ? '.cmd' : ''}`;
+    try {
+        which.sync(apidoc);
+        return apidoc;
+    } catch (e) {
+        log(e);
+    }
+    throw new Error('please install apidoc');
+};
 
 const dmStart = (...arg) => arg[2]();
 const dmEnd = (...arg) => arg[2]();
@@ -24,7 +58,7 @@ const requireFile = files => {
 
             return {
                 ...r,
-                ...(typeof result === 'object' && result)
+                ...(typeof result === 'object' && result),
             };
         } else {
             console.log(`${chalk.bgRed(chalk.white(` ${v} `))} 文件格式不符合要求，已过滤！`);
@@ -42,7 +76,7 @@ const requireFile = files => {
                 chalk.bgYellow(chalk.white(`${method}`)),
                 chalk.yellow(path),
                 '出现次数：',
-                chalk.bgRed(chalk.white(chalk.bold(` ${v.length} `)))
+                chalk.bgRed(chalk.white(chalk.bold(` ${v.length} `))),
             );
             v.forEach(o => {
                 console.log(`  ${chalk.bgCyan(chalk.white(` ${o} `))}`);
@@ -55,6 +89,17 @@ const requireFile = files => {
 
 export const bindMockServer = app => {
     const db = store.target;
+
+    const apidoc = findApidoc();
+
+    const sourceDir = path.join(store.target, '../DATAMOCK-APIDOC');
+
+    app.use('/', express.static(sourceDir));
+
+    runCmd(which.sync(apidoc), ['run', '-i', store.target, '-o', sourceDir], function() {
+        console.log(`Apidoc create successfully`);
+        console.log();
+    });
 
     // 清除缓存
     Object.keys(require.cache).forEach(file => {
@@ -71,8 +116,8 @@ export const bindMockServer = app => {
     app.use(
         bodyParser.urlencoded({
             extended: true,
-            limit: '5mb'
-        })
+            limit: '5mb',
+        }),
     );
     app.use(dmStart);
     // 添加路由
@@ -84,7 +129,7 @@ export const bindMockServer = app => {
             assert(!!app[method], `method of ${key} is not valid`);
             assert(
                 typeof fn === 'function' || typeof fn === 'object' || typeof fn === 'string',
-                `mock value of ${key} should be function or object or string, but got ${typeof fn}`
+                `mock value of ${key} should be function or object or string, but got ${typeof fn}`,
             );
             if (typeof fn === 'string') {
                 if (/\(.+\)/.test(path)) {
@@ -101,7 +146,7 @@ export const bindMockServer = app => {
 
     const indexArr = app._router.stack.reduce(
         (r, { name }, index) => (['dmStart', 'dmEnd'].includes(name) ? [...r, index] : r),
-        []
+        [],
     );
 
     createWatcher({
@@ -113,7 +158,7 @@ export const bindMockServer = app => {
                 const max = Math.max(...indexArr);
                 app._router.stack.splice(min, max - min + 1);
             }
-        }
+        },
     });
 };
 
