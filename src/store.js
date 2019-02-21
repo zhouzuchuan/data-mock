@@ -1,4 +1,5 @@
 export default {
     target: '',
-    watchTarget: []
+    watchTarget: [],
+    apidocTarget: '',
 };

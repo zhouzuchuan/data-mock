@@ -1,6 +1,6 @@
 {
     "name": "data-mock",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
@@ -26,6 +26,11 @@
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/zhouzuchuan/data-mock/issues"
+    },
+    "apidoc": {
+        "name": "DM API",
+        "description": "Data Mock Api Docs",
+        "title": "DM"
     },
     "homepage": "https://github.com/zhouzuchuan/data-mock#readme",
     "dependencies": {

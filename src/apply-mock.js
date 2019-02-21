@@ -92,14 +92,14 @@ export const bindMockServer = app => {
 
     const apidoc = findApidoc();
 
-    const sourceDir = path.join(store.target, '../DATAMOCK-APIDOC');
-
-    app.use('/', express.static(sourceDir));
-
-    runCmd(which.sync(apidoc), ['run', '-i', store.target, '-o', sourceDir], function() {
-        console.log(`Apidoc create successfully`);
-        console.log();
-    });
+    runCmd(
+        which.sync(apidoc),
+        ['run', '-i', store.target, '-o', store.apidocTarget || './public/dm-apidoc'],
+        function() {
+            console.log(`Apidoc create successfully`);
+            console.log();
+        },
+    );
 
     // 清除缓存
     Object.keys(require.cache).forEach(file => {
@@ -162,9 +162,15 @@ export const bindMockServer = app => {
     });
 };
 
-export const bindServer = ({ server, target = store.target, watchTarget = store.watchTarget }) => {
+export const bindServer = ({
+    server,
+    target = store.target,
+    watchTarget = store.watchTarget,
+    apidocTarget = store.apidocTarget,
+}) => {
     store.target = target;
     store.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
+    store.apidocTarget = apidocTarget;
     try {
         bindMockServer(server);
     } catch (e) {

@@ -85,10 +85,17 @@ const server = program => {
 
             const server = express();
 
+            const apidocTarget =
+                program.apidocTarget ||
+                path.join(path.resolve(__dirname, program.target || process.cwd()), '../dm-apidoc');
+
+            server.use('/', express.static(apidocTarget));
+
             bindServer({
                 server,
                 target: path.resolve(__dirname, program.target || process.cwd()),
                 ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {}),
+                apidocTarget,
             });
 
             server.listen(port, HOST, err => {
