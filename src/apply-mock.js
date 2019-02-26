@@ -5,49 +5,23 @@ const bodyParser = require('body-parser');
 const which = require('which');
 const express = require('express');
 const chalk = require('chalk');
+const fs = require('fs');
+const apidoc = require('apidoc');
 
 import store from './store';
 import { dealPath, createMockHandler, createProxy, outputError } from './utils';
 import createWatcher from './watcher';
 
+import { createMock } from './createMock';
+
 const debug = require('debug')('DM');
-
-/**
- * 启动命令
- */
-function runCmd(cmd, args, fn) {
-    args = args || [];
-    let runner = require('child_process').spawn(cmd, args, {
-        // keep color
-        stdio: 'inherit',
-    });
-    runner.on('close', function(code) {
-        if (fn) {
-            fn(code);
-        }
-    });
-}
-
-/**
- * 是否安装git
- * */
-
-const findApidoc = () => {
-    let apidoc = `apidoc${process.platform === 'win32' ? '.cmd' : ''}`;
-    try {
-        which.sync(apidoc);
-        return apidoc;
-    } catch (e) {
-        log(e);
-    }
-    throw new Error('please install apidoc');
-};
 
 const dmStart = (...arg) => arg[2]();
 const dmEnd = (...arg) => arg[2]();
 
 const requireFile = files => {
     let count = {};
+
     const result = files.reduce((r, v) => {
         const result = require(v);
 
@@ -90,16 +64,10 @@ const requireFile = files => {
 export const bindMockServer = app => {
     const db = store.target;
 
-    const apidoc = findApidoc();
-
-    runCmd(
-        which.sync(apidoc),
-        ['run', '-i', store.target, '-o', store.apidocTarget || './public/dm-apidoc'],
-        function() {
-            console.log(`Apidoc create successfully`);
-            console.log();
-        },
-    );
+    apidoc.createDoc({
+        src: [store.target],
+        dest: store.apidocTarget || './public/dm-apidoc',
+    });
 
     // 清除缓存
     Object.keys(require.cache).forEach(file => {
@@ -171,6 +139,7 @@ export const bindServer = ({
     store.target = target;
     store.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
     store.apidocTarget = apidocTarget;
+
     try {
         bindMockServer(server);
     } catch (e) {

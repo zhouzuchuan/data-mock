@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const url = require('url');
 const which = require('which');
 const printLogo = require('./print-logo');
-const { bindServer } = require('./lib');
+const { bindServer, createMock } = require('./lib');
 const { choosePort, openBrowser } = require('./server-util');
 
 const address = require('address');
@@ -97,6 +97,11 @@ const server = program => {
                 ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {}),
                 apidocTarget,
             });
+
+            createMock(
+                path.resolve(__dirname, program.watchTarget),
+                path.resolve(__dirname, program.target || process.cwd()),
+            );
 
             server.listen(port, HOST, err => {
                 if (err) {
