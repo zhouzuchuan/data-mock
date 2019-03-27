@@ -98,10 +98,10 @@ const server = program => {
                 apidocTarget,
             });
 
-            createMock(
-                path.resolve(__dirname, program.watchTarget),
-                path.resolve(__dirname, program.target || process.cwd()),
-            );
+            // createMock(
+            //     path.resolve(__dirname, program.watchTarget),
+            //     path.resolve(__dirname, program.target || process.cwd()),
+            // );
 
             server.listen(port, HOST, err => {
                 if (err) {
