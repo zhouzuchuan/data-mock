@@ -3,6 +3,8 @@ const path = require('path');
 const chalk = require('chalk');
 const url = require('url');
 const which = require('which');
+const fs = require('fs');
+const https = require('https');
 const printLogo = require('./print-logo');
 const { bindServer, createMock } = require('./lib');
 const { choosePort, openBrowser } = require('./server-util');
@@ -103,31 +105,39 @@ const server = program => {
             //     path.resolve(__dirname, program.target || process.cwd()),
             // );
 
-            server.listen(port, HOST, err => {
-                if (err) {
-                    return console.log(err);
-                }
+            https
+                .createServer(
+                    {
+                        key: fs.readFileSync('server.key'),
+                        cert: fs.readFileSync('server.cert'),
+                    },
+                    server,
+                )
+                .listen(port, HOST, err => {
+                    if (err) {
+                        return console.log(err);
+                    }
 
-                printLogo();
+                    printLogo();
 
-                console.log('Listen to: ');
-                console.log('');
-                console.log(chalk.cyan(`Local:            http://localhost:${port}`));
-                console.log(chalk.cyan(`On Your Network:  http://${address.ip()}:${port}`));
-                console.log('');
-                console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
-                console.log('');
+                    console.log('Listen to: ');
+                    console.log('');
+                    console.log(chalk.cyan(`Local:            https://localhost:${port}`));
+                    console.log(chalk.cyan(`On Your Network:  https://${address.ip()}:${port}`));
+                    console.log('');
+                    console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
+                    console.log('');
 
-                program.open &&
-                    openBrowser(
-                        url.format({
-                            protocol,
-                            // hostname: HOST,
-                            port,
-                            pathname: '/',
-                        }),
-                    );
-            });
+                    program.open &&
+                        openBrowser(
+                            url.format({
+                                protocol,
+                                // hostname: HOST,
+                                port,
+                                pathname: '/',
+                            }),
+                        );
+                });
         })
         .catch(err => {
             if (err && err.message) {
