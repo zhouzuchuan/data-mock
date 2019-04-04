@@ -21,7 +21,7 @@
 
 -   旨在帮助广大泛前端开发人员，解决数据模拟、数据对接等开发瓶颈，提高开发效率
 -   一款基于 [Express](https://github.com/expressjs/express) 的轻量级数据模拟服务
--   引入了业界优秀的数据模拟工具 [Mockjs](https://github.com/nuysoft/Mock)，如果你可以跳墙，也可以试试这个神器 [Faker.js](https://github.com/Marak/faker.js)
+-   引入了业界优秀的数据模拟工具 [Mockjs](https://github.com/nuysoft/Mock)，如果你可以跳墙，也可以试试这个神器 [Faker.js](https://github.com/Marak/faker.js)、[chancejs](https://github.com/chancejs/chancejs)
 
 ## 优势
 
