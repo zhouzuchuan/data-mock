@@ -6,7 +6,6 @@ const which = require('which');
 const express = require('express');
 const chalk = require('chalk');
 const fs = require('fs');
-const apidoc = require('apidoc');
 
 import store from './store';
 import { dealPath, createMockHandler, createProxy, outputError } from './utils';
@@ -63,11 +62,6 @@ const requireFile = files => {
 
 export const bindMockServer = app => {
     const db = store.target;
-
-    apidoc.createDoc({
-        src: [store.target],
-        dest: store.apidocTarget || './public/dm-apidoc',
-    });
 
     // 清除缓存
     Object.keys(require.cache).forEach(file => {
@@ -130,15 +124,9 @@ export const bindMockServer = app => {
     });
 };
 
-export const bindServer = ({
-    server,
-    target = store.target,
-    watchTarget = store.watchTarget,
-    apidocTarget = store.apidocTarget,
-}) => {
+export const bindServer = ({ server, target = store.target, watchTarget = store.watchTarget }) => {
     store.target = target;
     store.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
-    store.apidocTarget = apidocTarget;
 
     try {
         bindMockServer(server);

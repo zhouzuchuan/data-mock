@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+const path = require('path');
+const apidoc = require('apidoc');
+
+program
+    .usage('[options] data-mock|Create api doc')
+    .option('-t, --target <target>', 'Target directory')
+    .option('-d, --dest <dest>', 'Output directory')
+    .parse(process.argv);
+
+const docPath = program.target ? path.join(process.cwd(), program.target) : process.cwd();
+
+apidoc.createDoc({
+    src: docPath,
+    dest: program.dest ? path.join(process.cwd(), program.dest) : path.join(docPath, './dm-apidoc'),
+});
