@@ -93,39 +93,39 @@ const server = program => {
                 ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {}),
             });
 
-            https
-                .createServer(
-                    {
-                        key: fs.readFileSync('server.key'),
-                        cert: fs.readFileSync('server.cert'),
-                    },
-                    server,
-                )
-                .listen(port, HOST, err => {
-                    if (err) {
-                        return console.log(err);
-                    }
+            // https
+            //     .createServer(
+            //         {
+            //             key: fs.readFileSync('server.key'),
+            //             cert: fs.readFileSync('server.cert'),
+            //         },
+            //         server,
+            //     )
+            server.listen(port, HOST, err => {
+                if (err) {
+                    return console.log(err);
+                }
 
-                    printLogo();
+                printLogo();
 
-                    console.log('Listen to: ');
-                    console.log('');
-                    console.log(chalk.cyan(`Local:            https://localhost:${port}`));
-                    console.log(chalk.cyan(`On Your Network:  https://${address.ip()}:${port}`));
-                    console.log('');
-                    console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
-                    console.log('');
+                console.log('Listen to: ');
+                console.log('');
+                console.log(chalk.cyan(`Local:            http://localhost:${port}`));
+                console.log(chalk.cyan(`On Your Network:  http://${address.ip()}:${port}`));
+                console.log('');
+                console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
+                console.log('');
 
-                    program.open &&
-                        openBrowser(
-                            url.format({
-                                protocol,
-                                // hostname: HOST,
-                                port,
-                                pathname: '/',
-                            }),
-                        );
-                });
+                program.open &&
+                    openBrowser(
+                        url.format({
+                            protocol,
+                            // hostname: HOST,
+                            port,
+                            pathname: '/',
+                        }),
+                    );
+            });
         })
         .catch(err => {
             if (err && err.message) {
