@@ -7,10 +7,7 @@ const express = require('express');
 const chalk = require('chalk');
 const fs = require('fs');
 
-require('@babel/register')({
-    extends: './.babelrc',
-    ignore: [/node_modules/],
-});
+ 
 
 import store from './store';
 import { dealPath, createMockHandler, createProxy, outputError } from './utils';
