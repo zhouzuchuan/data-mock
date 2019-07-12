@@ -4,9 +4,10 @@ const chalk = require('chalk');
 const url = require('url');
 const which = require('which');
 const fs = require('fs');
-const https = require('https');
 const printLogo = require('./print-logo');
-const { bindServer, createMock } = require('./lib');
+// const { bindServer, createMock } = require('./lib');
+
+const DataMock = require('./lib').default;
 const { choosePort, openBrowser } = require('./server-util');
 
 const address = require('address');
@@ -74,7 +75,7 @@ const findApidoc = () => {
     throw new Error('please install apidoc');
 };
 
-const server = program => {
+const server = (options, open) => {
     const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
     const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 1024;
     const HOST = process.env.HOST || '0.0.0.0';
@@ -87,11 +88,13 @@ const server = program => {
 
             const server = express();
 
-            bindServer({
-                server,
-                target: path.resolve(__dirname, program.target || process.cwd()),
-                ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {}),
-            });
+            new DataMock(server, options);
+
+            // bindServer({
+            //     server,
+            //     target: path.resolve(__dirname, program.target || process.cwd()),
+            //     ...(program.watchTarget ? { watchTarget: path.resolve(__dirname, program.watchTarget) } : {}),
+            // });
 
             // https
             //     .createServer(
@@ -116,7 +119,7 @@ const server = program => {
                 console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
                 console.log('');
 
-                program.open &&
+                open &&
                     openBrowser(
                         url.format({
                             protocol,
