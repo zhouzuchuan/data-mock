@@ -1,19 +1,14 @@
 import chokidar from 'chokidar';
 import chalk from 'chalk';
-import globby from 'globby';
 import glob from 'glob';
 import bodyParser from 'body-parser';
-import { dealPath, createMockHandler, createProxy, outputError } from './utils';
+import httpProxyMiddle from 'http-proxy-middleware';
+import { dealPath, createMockHandler, winPath, warn, warnbg, error, errorbg, judge } from './utils/tools';
 
-const debug = require('debug')('DM');
+const DMTAG = (...arg: any[]) => arg[2]();
 
-const dmStart = (...arg) => arg[2]();
-const dmEnd = (...arg) => arg[2]();
-
-const requireFile = files => {
-    let count = {};
-
-    console.log(files);
+const requireFile = (files: string[]) => {
+    let count: any = {};
 
     const result = files.reduce((r, v) => {
         const result = require(v);
@@ -28,25 +23,25 @@ const requireFile = files => {
                 ...(typeof result === 'object' && result),
             };
         } else {
-            console.log(`${chalk.bgRed(chalk.white(` ${v} `))} 文件格式不符合要求，已过滤！`);
+            console.log(`${errorbg(` ${v} `)} 文件格式不符合要求，已过滤！`);
 
             return r;
         }
     }, {});
 
     Object.entries(count)
-        .filter(([k, v]) => v.length > 1)
-        .forEach(([k, v]) => {
+        .filter(([k, v]: any) => v.length > 1)
+        .forEach(([k, v]: any) => {
             let [path, method] = dealPath(k);
             console.log('');
             console.log(
                 chalk.bgYellow(chalk.white(`${method}`)),
                 chalk.yellow(path),
                 '出现次数：',
-                chalk.bgRed(chalk.white(chalk.bold(` ${v.length} `))),
+                errorbg(chalk.bold(v.length)),
             );
-            v.forEach(o => {
-                console.log(`  ${chalk.bgCyan(chalk.white(` ${o} `))}`);
+            v.forEach((o: string) => {
+                console.log(`  ${warnbg(o)}`);
             });
             console.log('');
         });
@@ -54,6 +49,10 @@ const requireFile = files => {
     return result;
 };
 
+export interface IdmOptions {
+    target: string;
+    watchTarget: string;
+}
 class DM {
     private target: string = '';
     private watchTarget: string[] = [];
@@ -61,12 +60,10 @@ class DM {
     private indexArr: any[] = [];
     private server: any;
 
-    constructor(server, { target, watchTarget }) {
+    constructor(server: any, { target, watchTarget }: IdmOptions) {
         this.target = target;
         this.server = server;
         this.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
-
-        this.start();
 
         server.use(bodyParser.json({ limit: '5mb', strict: false }));
         server.use(
@@ -75,6 +72,8 @@ class DM {
                 limit: '5mb',
             }),
         );
+
+        this.start();
     }
 
     createWatcher = () => {
@@ -85,10 +84,7 @@ class DM {
             depth: 99, //到位了....
         });
         watcher.on('change', path => {
-            console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.cyan('CHANGED'), path);
-            // watcher.close();
-
-            console.log(this.indexArr);
+            console.log(warnbg('DM'), warn('CHANGED'), path);
 
             // 删除旧的mock
             if (this.indexArr.length) {
@@ -101,49 +97,58 @@ class DM {
         });
     };
 
+    // 清除缓存
+    clearCache = () => {
+        Object.keys(require.cache).forEach(file => {
+            if ([...this.watchTarget, this.target].some(v => file.includes(v))) {
+                console.log(error('Delete Cache'), file);
+                delete require.cache[file];
+            }
+        });
+    };
+
     bindServer = () => {
         const db = this.target;
 
         const app = this.server;
 
-        // 清除缓存
-        Object.keys(require.cache).forEach(file => {
-            if ([...this.watchTarget, db].some(v => file.includes(v))) {
-                debug(`delete cache ${file}`);
-                delete require.cache[file];
-            }
-        });
-
         // 注入store
         // global.DM = requireFile(glob.sync(db + '/.*.js'));
 
-        app.use(dmStart);
+        this.clearCache();
+
+        app.use(DMTAG);
         // 添加路由
         Object.entries(requireFile(glob.sync(db + '/!(.)*.js'))).forEach(([key, fn]) => {
-            let [path, method] = dealPath(key);
+            const [path, method] = dealPath(key);
 
             // 非本地路径过滤
             if (path && method && /^\//.test(path)) {
-                // assert(!!app[method], `method of ${key} is not valid`);
-                // assert(
-                //     typeof fn === 'function' || typeof fn === 'object' || typeof fn === 'string',
-                //     `mock value of ${key} should be function or object or string, but got ${typeof fn}`,
-                // );
+                judge(!app[method], `method of ${key} is not valid`);
+                judge(
+                    !(typeof fn === 'function' || typeof fn === 'object' || typeof fn === 'string'),
+                    `mock value of ${warn(key)} should be function or object or string, but got ${error(typeof fn)}`,
+                );
 
-                // if (typeof fn === 'string') {
-                //     if (/\(.+\)/.test(path)) {
-                //         path = new RegExp(`^${path}$`);
-                //     }
-                //     // app.use(path, createProxy(method, path, fn));
-                // } else {
-                this.server[method](path, createMockHandler(method, path, fn));
-                // }
+                if (typeof fn === 'string') {
+                    app.use(
+                        /\(.+\)/.test(path) ? new RegExp(`^${path}$`) : path,
+                        httpProxyMiddle(
+                            (pathname, req: any) => (method ? req.method.toLowerCase() === method.toLowerCase() : true),
+                            {
+                                target: winPath(fn),
+                            },
+                        ),
+                    );
+                } else {
+                    this.server[method](path, createMockHandler(fn));
+                }
             }
         });
-        app.use(dmEnd);
+        app.use(DMTAG);
 
         this.indexArr = this.server._router.stack.reduce(
-            (r, { name }, index) => (['dmStart', 'dmEnd'].includes(name) ? [...r, index] : r),
+            (r: number[], { name }: { name: string }, index: number) => (name === DMTAG.name ? [...r, index] : r),
             [],
         );
     };

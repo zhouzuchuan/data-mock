@@ -1,11 +1,10 @@
-import chalk from 'chalk';
-import detect from 'detect-port-alt';
-import { execSync } from 'child_process';
-import inquirer from 'inquirer';
-import opn from 'opn';
+const chalk = require('chalk');
+var execSync = require('child_process').execSync;
+var spawn = require('cross-spawn');
+var opn = require('opn');
 
 // https://github.com/sindresorhus/opn#app
-var OSX_CHROME = 'google chrome';
+const OSX_CHROME: string = 'google chrome';
 
 const Actions = Object.freeze({
     NONE: 0,
@@ -13,7 +12,7 @@ const Actions = Object.freeze({
     SCRIPT: 2,
 });
 
-function getBrowserEnv() {
+const getBrowserEnv: () => { action: number; value?: string } = () => {
     // Attempt to honor this environment variable.
     // It is specific to the operating system.
     // See https://github.com/sindresorhus/opn#app for documentation.
@@ -30,14 +29,14 @@ function getBrowserEnv() {
         action = Actions.BROWSER;
     }
     return { action, value };
-}
+};
 
-function executeNodeScript(scriptPath, url) {
+function executeNodeScript(scriptPath: string, url: string) {
     const extraArgs = process.argv.slice(2);
     const child = spawn('node', [scriptPath, ...extraArgs, url], {
         stdio: 'inherit',
     });
-    child.on('close', code => {
+    child.on('close', (code: number) => {
         if (code !== 0) {
             console.log();
             console.log(chalk.red('The script specified as BROWSER environment variable failed.'));
@@ -49,7 +48,7 @@ function executeNodeScript(scriptPath, url) {
     return true;
 }
 
-function startBrowserProcess(browser, url) {
+function startBrowserProcess(browser: string, url: string) {
     // If we're on OS X, the user hasn't specifically
     // requested a different browser, we can try opening
     // Chrome with AppleScript. This lets us reuse an
@@ -72,18 +71,14 @@ function startBrowserProcess(browser, url) {
         }
     }
 
-    // Another special case: on OS X, check if BROWSER has been set to "open".
-    // In this case, instead of passing `open` to `opn` (which won't work),
-    // just ignore it (thus ensuring the intended behavior, i.e. opening the system browser):
-    // https://github.com/facebookincubator/create-react-app/pull/1690#issuecomment-283518768
-    if (process.platform === 'darwin' && browser === 'open') {
-        browser = undefined;
-    }
-
     // Fallback to opn
     // (It will always open new tab)
     try {
-        var options = { app: browser };
+        // Another special case: on OS X, check if BROWSER has been set to "open".
+        // In this case, instead of passing `open` to `opn` (which won't work),
+        // just ignore it (thus ensuring the intended behavior, i.e. opening the system browser):
+        // https://github.com/facebookincubator/create-react-app/pull/1690#issuecomment-283518768
+        const options = process.platform === 'darwin' && browser === 'open' ? { app: browser } : {};
         opn(url, options).catch(() => {}); // Prevent `unhandledRejection` error.
         return true;
     } catch (err) {
@@ -91,16 +86,12 @@ function startBrowserProcess(browser, url) {
     }
 }
 
-function clearConsole() {
-    process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
-}
-
 /**
  * Reads the BROWSER evironment variable and decides what to do with it. Returns
  * true if it opened a browser or ran a node.js script, otherwise false.
  */
-function openBrowser(url) {
-    const { action, value } = getBrowserEnv();
+const openBrowser = (url: string) => {
+    const { action, value = '' } = getBrowserEnv();
     switch (action) {
         case Actions.NONE:
             // Special case: BROWSER="none" will prevent opening completely.
@@ -112,51 +103,6 @@ function openBrowser(url) {
         default:
             throw new Error('Not implemented.');
     }
-}
-
-function choosePort(host, defaultPort) {
-    return detect(defaultPort, host).then(
-        port =>
-            new Promise(resolve => {
-                if (port === defaultPort) {
-                    return resolve(port);
-                }
-                const message =
-                    process.platform !== 'win32' && defaultPort < 1024 && !isRoot()
-                        ? `Admin permissions are required to run a server on a port below 1024.`
-                        : `Something is already running on port ${defaultPort}.`;
-                if (process.stdout.isTTY) {
-                    clearConsole();
-                    const question = {
-                        type: 'confirm',
-                        name: 'shouldChangePort',
-                        message: chalk.yellow(message) + '\n\nWould you like to run the app on another port instead?',
-                        default: true,
-                    };
-                    inquirer.prompt(question).then(answer => {
-                        if (answer.shouldChangePort) {
-                            resolve(port);
-                        } else {
-                            resolve(null);
-                        }
-                    });
-                } else {
-                    console.log(chalk.red(message));
-                    resolve(null);
-                }
-            }),
-        err => {
-            throw new Error(
-                chalk.red(`Could not find an open port at ${chalk.bold(host)}.`) +
-                    '\n' +
-                    ('Network error message: ' + err.message || err) +
-                    '\n',
-            );
-        },
-    );
-}
-
-module.exports  {
-    choosePort,
-    openBrowser,
 };
+
+export default openBrowser;
