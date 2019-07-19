@@ -63,3 +63,5 @@ rollup.config.js
 src/*
 example/*
 
+webpack.config.js
+

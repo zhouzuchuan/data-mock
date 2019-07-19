@@ -33,7 +33,7 @@ program
     .option('-o, --open', 'Service starts, open the default browser')
     .option('-p, --port', 'Set server port')
     .action(function(env, options) {
-        var target = options.target ? path.join(process.cwd(), options.target) : '/';
+        var target = path.join(process.cwd(), options.target || '/');
         console.log('server start for %s , auto open %s', target, !!options.open);
 
         require('../lib/server').default({

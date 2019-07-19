@@ -51,7 +51,7 @@ const requireFile = (files: string[]) => {
 
 export interface IdmOptions {
     target: string;
-    watchTarget: string;
+    watchTarget: string | string[];
 }
 class DM {
     private target: string = '';
@@ -61,7 +61,7 @@ class DM {
     private server: any;
     private watcher: FSWatcher | null = null;
 
-    constructor(server: any, { target, watchTarget }: IdmOptions) {
+    constructor(server: any, { target, watchTarget = [] }: IdmOptions) {
         this.target = target;
         this.server = server;
         this.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
@@ -101,7 +101,7 @@ class DM {
 
         Object.keys(require.cache).forEach(file => {
             if ([...this.watchTarget, this.target].some(v => file.includes(v))) {
-                console.log(error('Delete Cache'), file);
+                // console.log(error('Delete Cache'), file);
                 delete require.cache[file];
             }
         });
@@ -119,7 +119,7 @@ class DM {
 
         app.use(DMTAG);
         // 添加路由
-        Object.entries(requireFile(glob.sync(db + '/!(.)*.js'))).forEach(([key, fn]) => {
+        Object.entries(requireFile(glob.sync(db + '/!(.|/)*.js'))).forEach(([key, fn]) => {
             const [path, method] = dealPath(key);
 
             // 非本地路径过滤
