@@ -1,4 +1,4 @@
-import chokidar from 'chokidar';
+import chokidar, { FSWatcher } from 'chokidar';
 import chalk from 'chalk';
 import glob from 'glob';
 import bodyParser from 'body-parser';
@@ -59,6 +59,7 @@ class DM {
     private apidocTarget: string = '';
     private indexArr: any[] = [];
     private server: any;
+    private watcher: FSWatcher | null = null;
 
     constructor(server: any, { target, watchTarget }: IdmOptions) {
         this.target = target;
@@ -77,28 +78,27 @@ class DM {
     }
 
     createWatcher = () => {
-        const watcher = chokidar.watch([this.target, ...this.watchTarget], {
+        this.watcher = chokidar.watch([this.target, ...this.watchTarget], {
             persistent: true,
             ignored: /(^|[\/\\])\..*(?<!\.js)$/, //忽略点文件
             cwd: '.', //表示当前目录
             depth: 99, //到位了....
         });
-        watcher.on('change', path => {
+        this.watcher.on('change', path => {
             console.log(warnbg('DM'), warn('CHANGED'), path);
-
-            // 删除旧的mock
-            if (this.indexArr.length) {
-                const min = Math.min(...this.indexArr);
-                const max = Math.max(...this.indexArr);
-                this.server._router.stack.splice(min, max - min + 1);
-            }
-
             this.bindServer();
         });
     };
 
     // 清除缓存
     clearCache = () => {
+        // 删除旧的mock
+        if (this.indexArr.length) {
+            const min = Math.min(...this.indexArr);
+            const max = Math.max(...this.indexArr);
+            this.server._router.stack.splice(min, max - min + 1);
+        }
+
         Object.keys(require.cache).forEach(file => {
             if ([...this.watchTarget, this.target].some(v => file.includes(v))) {
                 console.log(error('Delete Cache'), file);

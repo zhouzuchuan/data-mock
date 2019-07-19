@@ -25,7 +25,7 @@ program.version(pkg.version).action(function() {
 });
 
 program
-    .command('server [cmd]')
+    .command('server [env]')
     .alias('s')
     .description('Start server')
     .option('-t, --target [mode]', 'Specify service directory')
@@ -46,7 +46,7 @@ program
     });
 
 program
-    .command('doc <cmd>')
+    .command('doc [cmd]')
     .alias('d')
     .description('Create api doc')
     .option('-t, --target <mode>', 'Target directory')
@@ -55,9 +55,10 @@ program
         console.log('exec "%s" using %s mode', cmd, options.exec_mode);
 
         const docPath = options.target ? path.join(process.cwd(), options.target) : process.cwd();
+
         apidoc.createDoc({
             src: docPath,
-            dest: options.dest ? path.join(process.cwd(), options.dest) : path.join(docPath, './dm-apidoc'),
+            dest: options.dest ? path.join(process.cwd(), options.dest) : path.join(docPath, './DM-DOC'),
         });
     })
     .on('--help', function() {

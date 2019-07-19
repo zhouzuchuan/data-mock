@@ -7,7 +7,7 @@ import DataMock, { IdmOptions } from './index';
 import choosePort from './utils/choosePort';
 import openBrowser from './utils/openBrowser';
 
-import { printLogo } from './utils/tools';
+import { printLogo, warnbg, warn } from './utils/tools';
 
 type Tserver = {
     open: boolean;
@@ -39,10 +39,10 @@ const server = ({ open, port, version, ...options }: Tserver & IdmOptions) => {
 
                 console.log('Listen to: ');
                 console.log('');
-                console.log(chalk.cyan(`Local:            http://localhost:${port}`));
-                console.log(chalk.cyan(`On Your Network:  http://${ip()}:${port}`));
+                console.log(warn(`Local:            http://localhost:${port}`));
+                console.log(warn(`On Your Network:  http://${ip()}:${port}`));
                 console.log('');
-                console.log(chalk.bgCyan(chalk.white(' DM ')), chalk.green(`Server started successfully`));
+                console.log(warnbg(' DM '), chalk.green(`Server started successfully`));
                 console.log('');
 
                 open &&

@@ -43,10 +43,13 @@
         "@babel/preset-env": "^7.4.1",
         "@babel/preset-typescript": "^7.3.3",
         "@types/body-parser": "^1.17.0",
+        "@types/cross-spawn": "^6.0.0",
         "@types/express": "^4.17.0",
         "@types/glob": "^7.1.1",
         "@types/http-proxy-middleware": "^0.19.2",
+        "@types/inquirer": "^6.0.3",
         "@types/node": "^12.6.2",
+        "@types/open": "^6.1.0",
         "typescript": "^3.3.3"
     },
     "dependencies": {
@@ -64,7 +67,7 @@
         "http-proxy-middleware": "^0.19.1",
         "inquirer": "^6.5.0",
         "mockjs": "^1.0.1-beta3",
-        "opn": "^6.0.0",
+        "open": "^6.4.0",
         "update-notifier": "^3.0.1"
     }
 }

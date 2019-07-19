@@ -1,6 +1,6 @@
-const chalk = require('chalk');
-const detect = require('detect-port-alt');
-const inquirer = require('inquirer');
+import chalk from 'chalk';
+import detect from 'detect-port-alt';
+import inquirer, { ConfirmQuestion } from 'inquirer';
 
 function clearConsole() {
     process.stdout.write(process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H');
@@ -20,7 +20,7 @@ const choosePort = (host: string, defaultPort: number) => {
                         : `Something is already running on port ${defaultPort}.`;
                 if (process.stdout.isTTY) {
                     clearConsole();
-                    const question = {
+                    const question: ConfirmQuestion<any> = {
                         type: 'confirm',
                         name: 'shouldChangePort',
                         message: chalk.yellow(message) + '\n\nWould you like to run the app on another port instead?',

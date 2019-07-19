@@ -1,7 +1,7 @@
-const chalk = require('chalk');
-var execSync = require('child_process').execSync;
-var spawn = require('cross-spawn');
-var opn = require('opn');
+import chalk from 'chalk';
+import { execSync } from 'child_process';
+import spawn from 'cross-spawn';
+import opn from 'open';
 
 // https://github.com/sindresorhus/opn#app
 const OSX_CHROME: string = 'google chrome';
