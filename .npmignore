@@ -72,3 +72,5 @@ webpack.config.js
 
 package-lock.json
 tsconfig.json
+
+CHANGELOG.md

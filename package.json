@@ -1,6 +1,6 @@
 {
     "name": "data-mock",
-    "version": "2.0.0-alpha.2",
+    "version": "2.0.0-alpha.3",
     "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
@@ -14,17 +14,11 @@
         "build:types": "tsc --emitDeclarationOnly",
         "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
         "dev": "bin/dm server -t ./example/db  -w ./example/api",
-        "precommit": "lint-staged"
+        "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/zhouzuchuan/data-mock.git"
-    },
-    "lint-staged": {
-        "src/*.ts": [
-            "npm run build",
-            "git commit"
-        ]
     },
     "keywords": [
         "mock",
