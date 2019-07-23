@@ -70,4 +70,5 @@ webpack.config.js
 
 .prettierignore
 
+package-lock.json
 tsconfig.json

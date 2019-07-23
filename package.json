@@ -13,11 +13,18 @@
         "build": "npm run build:types && npm run build:js",
         "build:types": "tsc --emitDeclarationOnly",
         "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-        "dev": "bin/dm server -t ./example/db  -w ./example/api"
+        "dev": "bin/dm server -t ./example/db  -w ./example/api",
+        "precommit": "lint-staged"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/zhouzuchuan/data-mock.git"
+    },
+    "lint-staged": {
+        "src/*.ts": [
+            "npm run build",
+            "git commit"
+        ]
     },
     "keywords": [
         "mock",
@@ -51,6 +58,7 @@
         "@types/node": "^12.6.2",
         "@types/open": "^6.1.0",
         "babel-plugin-add-module-exports": "^1.0.2",
+        "lint-staged": "^9.2.0",
         "typescript": "^3.3.3"
     },
     "dependencies": {
