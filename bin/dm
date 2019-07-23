@@ -1,73 +1,79 @@
 #!/usr/bin/env node
 'use strict';
 
-const chalk = require('chalk');
 const program = require('commander');
-const spawn = require('win-spawn');
-const join = require('path').join;
-const resolve = require('path').resolve;
+const updaterNotifier = require('update-notifier');
+const spawn = require('cross-spawn');
+const path = require('path');
+const apidoc = require('apidoc');
 const exists = require('fs').existsSync;
-const readFileSync = require('fs').readFileSync;
-const printLogo = require('../print-logo');
-
-// Notify update when process exits
-const updater = require('update-notifier');
 const pkg = require('../package.json');
-updater({ pkg: pkg }).notify({ defer: true });
 
-if (process.argv.slice(2).join('') === '-v') {
-    printLogo();
-    return;
-}
+const printLogo = () => {};
+
+updaterNotifier({
+    pkg,
+    updateCheckInterval: 0,
+}).notify({ defer: true });
+
+program.version(pkg.version).action(function() {
+    console.log('');
+    console.log('Examples:');
+    console.log('');
+    console.log('  $ deploy exec sequential');
+    console.log('  $ deploy exec async');
+});
 
 program
-    .usage('<command> [options]')
-    .on('--help', printHelp)
-    .parse(process.argv);
+    .command('server [env]')
+    .alias('s')
+    .description('Start server')
+    .option('-t, --target [mode]', 'Specify service directory')
+    .option('-w, --watchTarget [e]', 'Specify service directory')
+    .option('-o, --open', 'Service starts, open the default browser')
+    .option('-p, --port', 'Set server port')
+    .action(function(env, options) {
+        var target = path.join(process.cwd(), options.target || '/');
+        console.log('server start for %s , auto open %s', target, !!options.open);
 
-const aliases = {
-    g: 'generate',
-};
-const args = process.argv.slice(3);
-let subcmd = program.args[0];
-if (aliases[subcmd]) subcmd = aliases[subcmd];
-
-if (!subcmd) {
-    program.help();
-} else {
-    const bin = executable(subcmd);
-    if (bin) {
-        wrap(spawn(bin, args, { stdio: 'inherit', customFds: [0, 1, 2] }));
-    } else {
-        program.help();
-    }
-}
-
-function wrap(sp) {
-    sp.on('close', function(code) {
-        process.exit(code);
+        require('../lib/server')({
+            open: !!options.open,
+            port: parseInt(options.port, 10),
+            version: pkg.version,
+            target: target,
+            ...(options.watchTarget ? { watchTarget: path.resolve(__dirname, options.watchTarget) } : {}),
+        });
     });
+
+program
+    .command('doc [cmd]')
+    .alias('d')
+    .description('Create api doc')
+    .option('-t, --target <mode>', 'Target directory')
+    .option('-d, --dist <mode>', 'Target directory')
+    .action(function(cmd, options) {
+        console.log('exec "%s" using %s mode', cmd, options.exec_mode);
+
+        const docPath = options.target ? path.join(process.cwd(), options.target) : process.cwd();
+
+        apidoc.createDoc({
+            src: docPath,
+            dest: options.dest ? path.join(process.cwd(), options.dest) : path.join(docPath, './DM-DOC'),
+        });
+    })
+    .on('--help', function() {
+        console.log('');
+        console.log('Examples:');
+        console.log('');
+        console.log('  $ dm doc  ');
+    });
+
+program.command('*').action(function(env) {
+    console.log('deploying "%s"', env);
+});
+
+if (!process.argv.slice(2).length) {
+    program.outputHelp();
 }
 
-function printHelp() {
-    console.log('  Commands:');
-    console.log('');
-    console.log('    server                  Start server');
-    console.log('       --target, -t         Specify service directory');
-    console.log('       --open, -o           Service starts, open the default browser');
-    console.log('');
-    console.log('    doc                     Create api doc');
-    console.log('       --target, -t         Target directory');
-    console.log('       --dest, -d           Output directory');
-    console.log('');
-    console.log('  All commands can be run with -h (or --help) for more information.');
-
-    printLogo();
-}
-
-function executable(subcmd) {
-    var file = join(__dirname, 'dm-' + subcmd);
-    if (exists(file)) {
-        return file;
-    }
-}
+program.parse(process.argv);
