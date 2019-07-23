@@ -65,3 +65,9 @@ example/*
 
 webpack.config.js
 
+
+.babelrc
+
+.prettierignore
+
+tsconfig.json

@@ -113,13 +113,13 @@ class DM {
         const app = this.server;
 
         // 注入store
-        // global.DM = requireFile(glob.sync(db + '/.*.js'));
+        (global as any).DM = requireFile(glob.sync(db + '/.*.js'));
 
         this.clearCache();
 
         app.use(DMTAG);
         // 添加路由
-        Object.entries(requireFile(glob.sync(db + '/!(.|/)*.js'))).forEach(([key, fn]) => {
+        Object.entries(requireFile(glob.sync(db + '/!(.)*.js'))).forEach(([key, fn]) => {
             const [path, method] = dealPath(key);
 
             // 非本地路径过滤
