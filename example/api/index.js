@@ -17,18 +17,18 @@ module.exports = {
          *
          * @apiSuccess {String}   message               状态介绍
          *
-         * @apiSuccess {String}   status                状态码
+         * @apiSuccess {String}   [status=10 ]               状态码
          * ## `10`
          * ```js
          * console.log('dddd')
          * ```
          *
-         * @apiSuccess {Object}   result                结果
+         * @apiSuccess {Object}   result                {@date} 结果
          * @apiSuccess {Number}   result.pagesize       返回数量
          * @apiSuccess {Number}   result.pageIndex      返回页数
-         * @apiSuccess {Object[]} result.dataList       数据列表
+         * @apiSuccess {[Object]} result.dataList       数据列表
          * @apiSuccess {String}   result.dataList.id    唯一标识id
-         * @apiSuccess {String}   result.dataList.age   年龄
+         * @apiSuccess {String}   result.dataList.age   [@date] {10} 年龄
          *
          */
 

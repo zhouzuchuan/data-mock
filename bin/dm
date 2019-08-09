@@ -59,6 +59,9 @@ program
         apidoc.createDoc({
             src: docPath,
             dest: options.dest ? path.join(process.cwd(), options.dest) : path.join(docPath, './DM-DOC'),
+            parsers: {
+                apisuccess: path.resolve(__dirname, '../lib/parsers/api_success.js'),
+            },
         });
     })
     .on('--help', function() {
