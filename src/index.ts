@@ -123,8 +123,6 @@ class DM {
 
         this.clearCache();
 
-        console.log('==========');
-
         apidoc.setLogger({
             debug: function() {
                 // console.log(arguments);
@@ -161,19 +159,17 @@ class DM {
         var b = JSON.parse(a.data)
             .filter((v: any) => v.url)
             .reduce((r: any, v: any) => {
-                console.log(JSON.stringify(createObject(v.success.fields['Success 200'])));
                 return {
                     ...r,
                     [`${v.type} ${v.url}`]: createObject(v.success.fields['Success 200']),
                 };
             }, {});
-        console.log(b);
 
         app.use(DMTAG);
 
         const mockData: any = Object.entries({ ...requireFile(glob.sync(db + '/!(.)*.js')), ...b });
         // 添加路由
-        [...mockData, ...[]].forEach(([key, fn]) => {
+        mockData.forEach(([key, fn]: any) => {
             const [path, method] = dealPath(key);
 
             // 非本地路径过滤
