@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import set from 'lodash.set';
 
 export const createObject = (data: any) => {
     let arrayType: any = '';
@@ -26,7 +26,7 @@ export const createObject = (data: any) => {
             arrayTypeMock = '';
         }
 
-        _.set(r, key, value);
+        set(r, key, value);
 
         return r;
     }, {});

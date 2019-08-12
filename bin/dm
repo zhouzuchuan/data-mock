@@ -36,32 +36,39 @@ program
         var target = path.join(process.cwd(), options.target || '/');
         console.log('server start for %s , auto open %s', target, !!options.open);
 
-        require('../lib/server')({
+        const params = {
             open: !!options.open,
             port: parseInt(options.port, 10),
             version: pkg.version,
             target: target,
-            ...(options.watchTarget ? { watchTarget: path.join(process.cwd(), options.watchTarget) } : {}),
             parsers: {
                 apisuccess: path.resolve(__dirname, '../lib/parsers/api_success.js'),
             },
-        });
+        };
+
+        if (options.watchTarget) {
+            params.watchTarget = path.join(process.cwd(), options.watchTarget);
+        }
+
+        require('../lib/server')(params);
     });
 
 program
     .command('doc [cmd]')
     .alias('d')
     .description('Create api doc')
-    .option('-t, --target <mode>', 'Target directory')
+    .option('-t, --target <mode>', 'Target directory', function(str) {
+        return str ? str.split(',') : [];
+    })
     .option('-d, --dist <mode>', 'Target directory')
     .action(function(cmd, options) {
-        console.log('exec "%s" using %s mode', cmd, options.exec_mode);
+        console.log('exec "%s" using %s mode', cmd, options._mode);
 
-        const docPath = options.target ? path.join(process.cwd(), options.target) : process.cwd();
+        const cwd = process.cwd();
 
         apidoc.createDoc({
-            src: docPath,
-            dest: options.dest ? path.join(process.cwd(), options.dest) : path.join(docPath, './DM-DOC'),
+            src: options.target.map(v => path.join(cwd, v)),
+            dest: path.join(cwd, options.dest || '', './DM-DOC'),
             parsers: {
                 apisuccess: path.resolve(__dirname, '../lib/parsers/api_success.js'),
             },

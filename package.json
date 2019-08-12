@@ -50,6 +50,8 @@
         "@types/glob": "^7.1.1",
         "@types/http-proxy-middleware": "^0.19.2",
         "@types/inquirer": "^6.0.3",
+        "@types/lodash.set": "^4.3.6",
+        "@types/mockjs": "^1.0.2",
         "@types/node": "^12.6.2",
         "@types/open": "^6.1.0",
         "babel-plugin-add-module-exports": "^1.0.2",
@@ -70,6 +72,7 @@
         "glob": "^7.1.4",
         "http-proxy-middleware": "^0.19.1",
         "inquirer": "^6.5.0",
+        "lodash.set": "^4.3.2",
         "mockjs": "^1.0.1-beta3",
         "open": "^6.4.0",
         "update-notifier": "^3.0.1"
