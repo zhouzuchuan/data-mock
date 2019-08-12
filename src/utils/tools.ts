@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { mock } from 'mockjs';
 
 /**
  *
@@ -12,7 +13,7 @@ export const createMockHandler = (value: any) => (...args: any[]): void => {
     if (typeof value === 'function') {
         value(...args);
     } else {
-        args[1].json(value);
+        args[1].json(mock(value));
     }
 };
 

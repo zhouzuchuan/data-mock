@@ -4,6 +4,8 @@ import glob from 'glob';
 import bodyParser from 'body-parser';
 import httpProxyMiddle from 'http-proxy-middleware';
 import { dealPath, createMockHandler, winPath, warn, warnbg, error, errorbg, judge } from './utils/tools';
+import apidoc from 'apidoc-core';
+import { createObject } from './utils/parse';
 
 const DMTAG = (...arg: any[]) => arg[2]();
 
@@ -50,21 +52,25 @@ const requireFile = (files: string[]) => {
 };
 
 export interface IdmOptions {
+    parsers: any;
     target: string;
     watchTarget: string | string[];
 }
 class DM {
     private target: string = '';
     private watchTarget: string[] = [];
+    private apidocParsers: any = {};
     private apidocTarget: string = '';
     private indexArr: any[] = [];
     private server: any;
     private watcher: FSWatcher | null = null;
 
-    constructor(server: any, { target, watchTarget = [] }: IdmOptions) {
+    constructor(server: any, { target, watchTarget = [], parsers = {} }: IdmOptions) {
         this.target = target;
         this.server = server;
         this.watchTarget = Array.isArray(watchTarget) ? watchTarget : [watchTarget];
+
+        this.apidocParsers = parsers;
 
         server.use(bodyParser.json({ limit: '5mb', strict: false }));
         server.use(
@@ -117,9 +123,57 @@ class DM {
 
         this.clearCache();
 
+        console.log('==========');
+
+        apidoc.setLogger({
+            debug: function() {
+                // console.log(arguments);
+            },
+            verbose: function() {
+                // console.log(arguments);
+            },
+            info: function() {
+                // console.log(arguments);
+            },
+            warn: function() {
+                // console.log(arguments);
+            },
+            error: function() {
+                // console.log(arguments);
+            },
+        });
+
+        var a = apidoc.parse({
+            src: this.watchTarget,
+            parsers: this.apidocParsers,
+            debug: false,
+            silent: false,
+            verbose: false,
+            simulate: false,
+            parse: false,
+            colorize: true,
+            markdown: true,
+            config: './',
+            apiprivate: false,
+            encoding: 'utf8',
+        });
+
+        var b = JSON.parse(a.data)
+            .filter((v: any) => v.url)
+            .reduce((r: any, v: any) => {
+                console.log(JSON.stringify(createObject(v.success.fields['Success 200'])));
+                return {
+                    ...r,
+                    [`${v.type} ${v.url}`]: createObject(v.success.fields['Success 200']),
+                };
+            }, {});
+        console.log(b);
+
         app.use(DMTAG);
+
+        const mockData: any = Object.entries({ ...requireFile(glob.sync(db + '/!(.)*.js')), ...b });
         // 添加路由
-        Object.entries(requireFile(glob.sync(db + '/!(.)*.js'))).forEach(([key, fn]) => {
+        [...mockData, ...[]].forEach(([key, fn]) => {
             const [path, method] = dealPath(key);
 
             // 非本地路径过滤

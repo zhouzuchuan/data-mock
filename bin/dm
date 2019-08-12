@@ -41,7 +41,10 @@ program
             port: parseInt(options.port, 10),
             version: pkg.version,
             target: target,
-            ...(options.watchTarget ? { watchTarget: path.resolve(__dirname, options.watchTarget) } : {}),
+            ...(options.watchTarget ? { watchTarget: path.join(process.cwd(), options.watchTarget) } : {}),
+            parsers: {
+                apisuccess: path.resolve(__dirname, '../lib/parsers/api_success.js'),
+            },
         });
     });
 

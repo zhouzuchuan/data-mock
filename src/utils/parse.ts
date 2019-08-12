@@ -1,75 +1,33 @@
-var data = [
-    {
-        group: 'Success 200',
-        type: 'String',
-        optional: false,
-        field: 'message',
-        description: '<p>状态介绍</p>',
-    },
-    {
-        group: 'Success 200',
-        type: 'String',
-        optional: true,
-        field: 'status',
-        defaultValue: '10',
-        description:
-            '<p>状态码</p> <h2><code>10</code></h2> <pre><code class="language-js">console.log(\'dddd\') </code></pre>',
-    },
-    {
-        group: 'Success 200',
-        type: 'Object',
-        optional: false,
-        field: 'result',
-        description: '<p>结果</p>',
-        mockSize: '@date',
-    },
-    {
-        group: 'Success 200',
-        type: 'Number',
-        optional: false,
-        field: 'result.pagesize',
-        description: '<p>返回数量</p>',
-    },
-    {
-        group: 'Success 200',
-        type: 'Number',
-        optional: false,
-        field: 'result.pageIndex',
-        description: '<p>返回页数</p>',
-    },
-    {
-        group: 'Success 200',
-        type: '[Object]',
-        optional: false,
-        field: 'result.dataList',
-        description: '<p>数据列表</p>',
-    },
-    {
-        group: 'Success 200',
-        type: 'String',
-        optional: false,
-        field: 'result.dataList.id',
-        description: '<p>唯一标识id</p>',
-    },
-    {
-        group: 'Success 200',
-        type: 'String',
-        optional: false,
-        field: 'result.dataList.age',
-        description: '<p>年龄</p>',
-        mock: '@date',
-        mockSize: '10',
-    },
-];
+import _ from 'lodash';
 
-const createObject = data => {
-    data.reduce((r, { field, type, mockSize, mock }: any) => {
+export const createObject = (data: any) => {
+    let arrayType: any = '';
+    let arrayTypeMock: string = '';
+
+    return data.reduce((r: any, { field, type, mockSize, mock }: any) => {
         var key = field;
         var value = '';
 
-        return {
-            ...r,
-            [`${key}|${mockSize}`]: value,
-        };
+        if (mock) {
+            value = mock;
+        }
+
+        if (type === '[Object]') {
+            arrayType = field;
+            arrayTypeMock = typeof mockSize === 'undefined' ? '' : '|' + mockSize;
+        }
+
+        if (arrayType !== '' && key.includes(arrayType)) {
+            key =
+                field.replace(new RegExp(`(^${arrayType})`), '$1' + arrayTypeMock + '[0]') +
+                (typeof mockSize !== 'undefined' && arrayType !== field ? `|${mockSize}` : '');
+        } else {
+            arrayType = '';
+            arrayTypeMock = '';
+        }
+
+        _.set(r, key, value);
+
+        return r;
     }, {});
 };
