@@ -2,7 +2,7 @@ module.exports = {
     get: {
         /**
          *
-         * @api {get} /api/ageList2 获取年龄列表
+         * @api {get} /ageList 获取年龄列表
          * @apiName GetUser
          * @apiDescription
          * # input输入地点之后，点击搜索查询 触发

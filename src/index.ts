@@ -56,7 +56,7 @@ export interface IdmOptions {
     target: string;
     watchTarget: string | string[];
 }
-class DM {
+class DataMock {
     private target: string = '';
     private watchTarget: string[] = [];
     private apidocParsers: any = {};
@@ -156,14 +156,14 @@ class DM {
             encoding: 'utf8',
         });
 
-        var b = JSON.parse(a.data)
+        var b = a.data ? JSON.parse(a.data)
             .filter((v: any) => v.url)
             .reduce((r: any, v: any) => {
                 return {
                     ...r,
                     [`${v.type} ${v.url}`]: createObject(v.success.fields['Success 200']),
                 };
-            }, {});
+            }, {}) : {};
 
         app.use(DMTAG);
 
@@ -216,4 +216,4 @@ class DM {
     };
 }
 
-export default DM;
+export default DataMock;
