@@ -1,6 +1,6 @@
 {
     "name": "data-mock",
-    "version": "2.0.2",
+    "version": "2.1.0",
     "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
@@ -45,6 +45,7 @@
         "@babel/preset-env": "^7.4.1",
         "@babel/preset-typescript": "^7.3.3",
         "@types/body-parser": "^1.17.0",
+        "@types/cors": "^2.8.6",
         "@types/cross-spawn": "^6.0.0",
         "@types/express": "^4.17.0",
         "@types/glob": "^7.1.1",
@@ -59,13 +60,14 @@
         "typescript": "^3.3.3"
     },
     "dependencies": {
-        "address": "^1.1.0",
+        "address": "1.0.3",
         "apidoc": "^0.17.7",
         "assert": "^2.0.0",
         "body-parser": "^1.19.0",
         "chalk": "^2.4.2",
         "chokidar": "^3.0.2",
         "commander": "^2.20.0",
+        "cors": "^2.8.5",
         "cross-spawn": "^6.0.5",
         "detect-port-alt": "^1.1.6",
         "express": "^4.17.1",

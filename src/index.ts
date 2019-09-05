@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import glob from 'glob';
 import bodyParser from 'body-parser';
 import httpProxyMiddle from 'http-proxy-middleware';
+import cors from 'cors';
 import { dealPath, createMockHandler, winPath, warn, warnbg, error, errorbg, judge } from './utils/tools';
 import apidoc from 'apidoc-core';
 import { createObject } from './utils/parse';
@@ -79,6 +80,7 @@ class DataMock {
                 limit: '5mb',
             }),
         );
+        server.use(cors());
 
         this.start();
     }
@@ -156,14 +158,16 @@ class DataMock {
             encoding: 'utf8',
         });
 
-        var b = a.data ? JSON.parse(a.data)
-            .filter((v: any) => v.url)
-            .reduce((r: any, v: any) => {
-                return {
-                    ...r,
-                    [`${v.type} ${v.url}`]: createObject(v.success.fields['Success 200']),
-                };
-            }, {}) : {};
+        var b = a.data
+            ? JSON.parse(a.data)
+                  .filter((v: any) => v.url)
+                  .reduce((r: any, v: any) => {
+                      return {
+                          ...r,
+                          [`${v.type} ${v.url}`]: createObject(v.success.fields['Success 200']),
+                      };
+                  }, {})
+            : {};
 
         app.use(DMTAG);
 
