@@ -30,30 +30,29 @@ const server = ({ open, port, version, ...options }: Tserver & IdmOptions) => {
 
             new DataMock(server, options);
 
-            server.listen(port, HOST, (err: Error) => {
-                if (err) {
-                    return console.log(err);
-                }
+            server.listen(port, HOST, ( ) => {
+                
+                    printLogo(version);
 
-                printLogo(version);
-
-                console.log('Listen to: ');
-                console.log('');
-                console.log(warn(`Local:            http://localhost:${port}`));
-                console.log(warn(`On Your Network:  http://${ip()}:${port}`));
-                console.log('');
-                console.log(warnbg(' DM '), chalk.green(`Server started successfully`));
-                console.log('');
-
-                open &&
-                    openBrowser(
-                        url.format({
-                            protocol,
-                            // hostname: HOST,
-                            port,
-                            pathname: '/',
-                        }),
-                    );
+                    console.log('Listen to: ');
+                    console.log('');
+                    console.log(warn(`Local:            ${protocol}://localhost:${port}`));
+                    console.log(warn(`On Your Network:  ${protocol}://${ip()}:${port}`));
+                    console.log('');
+                    console.log(warnbg(' DM '), chalk.green(`Server started successfully`));
+                    console.log('');
+    
+                    open &&
+                        openBrowser(
+                            url.format({
+                                protocol,
+                                // hostname: HOST,
+                                hostname: 'localhost',
+                                port,
+                                pathname: '/',
+                            }),
+                        ); 
+               
             });
         })
         .catch((err: Error) => {

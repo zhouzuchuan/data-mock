@@ -30,8 +30,8 @@ program
     .description('Start server')
     .option('-t, --target [mode]', 'Specify service directory')
     .option('-w, --watchTarget [e]', 'Specify service directory')
-    .option('-o, --open', 'Service starts, open the default browser')
-    .option('-p, --port', 'Set server port')
+    .option('-o, --open [o]', 'Service starts, open the default browser')
+    .option('-p, --port [p]', 'Set server port')
     .action(function(env, options) {
         var target = path.join(process.cwd(), options.target || '/');
         console.log('server start for %s , auto open %s', target, !!options.open);
