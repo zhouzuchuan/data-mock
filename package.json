@@ -1,6 +1,6 @@
 {
     "name": "data-mock",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "轻量级数据模拟\b服务",
     "main": "lib",
     "bin": {
@@ -12,7 +12,7 @@
         "type-check:watch": "npm run type-check -- --watch",
         "build": "npm run build:types && npm run build:js",
         "build:types": "tsc --emitDeclarationOnly",
-        "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+        "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" ",
         "dev": "bin/dm server -t ./example/db  -w ./example/api",
         "dev:create": "bin/dm doc -t ./example/api",
         "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"

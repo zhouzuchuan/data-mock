@@ -73,3 +73,18 @@ export const printLogo: (version: string) => void = (version: string): void => {
     );
     console.log('');
 };
+
+
+/**
+ * 转换 api-mange 的 api 清单
+ * */ 
+export const transferApiManageList = (apiList: Record<string, Record<string, string>>): Record<string, string> => {
+    return Object.entries(apiList).reduce((r, [method, apis]) => {
+        return Object.entries(apis).reduce((r2, [apiName, apiPath]) => {
+            return {
+                ...r2,
+                [apiName]: `${method} ${apiPath}`,
+            }
+        }, r)
+    }, {})
+}

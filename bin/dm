@@ -11,6 +11,8 @@ const pkg = require('../package.json');
 
 const printLogo = () => {};
 
+process.env._DATA_MOCK_ = true
+
 updaterNotifier({
     pkg,
     updateCheckInterval: 0,
