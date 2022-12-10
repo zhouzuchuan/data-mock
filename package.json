@@ -70,7 +70,7 @@
         "cors": "^2.8.5",
         "cross-spawn": "^6.0.5",
         "detect-port-alt": "^1.1.6",
-        "express": "^4.17.1",
+        "express": "^4.17.3",
         "glob": "^7.1.4",
         "http-proxy-middleware": "^0.19.1",
         "inquirer": "^6.5.0",
