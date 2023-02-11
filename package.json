@@ -77,6 +77,6 @@
         "lodash.set": "^4.3.2",
         "mockjs": "^1.0.1-beta3",
         "open": "^6.4.0",
-        "update-notifier": "^3.0.1"
+        "update-notifier": "^6.0.2"
     }
 }
